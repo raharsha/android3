@@ -12,8 +12,8 @@
         <item>Ratings</item>
     </string-array>
     <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
+        <item>popularity.desc</item>
+        <item>vote_average.desc</item>
     </string-array>
 
 

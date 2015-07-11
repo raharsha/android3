@@ -150,17 +150,11 @@ public class FetchMoviesTask extends AsyncTask<Void, Void, JSONObject[]> {
             int i = 0;
             for (JSONObject jsonObject : result) {
                 Log.i(LOG_TAG, "result " + jsonObject);
-//                    Picasso.with(context).load(url).into(imageView);
                 String id = String.valueOf(i);
-                try {
-                    String originalTitle = jsonObject.getString("original_title");
-                    MovieData item = new MovieData(id, jsonObject);
-                    adapter.add(item);
-                    DummyContent.ITEM_MAP.put(id, item);
-                    DummyContent.ITEMS.add(item);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                MovieData item = new MovieData(id, jsonObject);
+                adapter.add(item);
+                DummyContent.ITEM_MAP.put(id, item);
+                DummyContent.ITEMS.add(item);
                 i++;
             }
             // New data is back from the server.  Hooray!
