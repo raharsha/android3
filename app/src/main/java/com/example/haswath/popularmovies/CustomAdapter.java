@@ -5,11 +5,11 @@ package com.example.haswath.popularmovies;
  */
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
@@ -17,52 +17,107 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Map;
+import java.util.List;
 
-public class CustomAdapter extends ArrayAdapter<MovieData> {
+public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
-    Context context;
-    public static Map<String, MovieData> items;
-    private static LayoutInflater inflater=null;
-    public CustomAdapter(Context mainActivity, Map<String, MovieData> arr, int res) {
-        // TODO Auto-generated constructor stub
-        super(mainActivity, res);
+    protected Context context;
+    private static List<MovieData> items;
+    public CustomAdapter(Context mainActivity, List<MovieData> arr) {
         context=mainActivity;
         this.items = arr;
-        addAll(items.values());
-        inflater = ( LayoutInflater )context.
-                getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
     }
 
+    // Usually involves inflating a layout from XML and returning the holder
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        // TODO Auto-generated method stub
-        View rowView;
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        // Inflate the custom layout
+        View itemView = LayoutInflater.from(parent.getContext()).
+                inflate(R.layout.movies, parent, false);
+        // Return a new holder instance
+        return new ViewHolder(itemView.getContext(), itemView);
+    }
 
-        rowView = inflater.inflate(R.layout.movies, null);
-        ImageView img = (ImageView) rowView.findViewById(R.id.imageView1);
-
-
+    // Involves populating data into the item through holder
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        // Get the data model based on position
+        MovieData item = items.get(position);
+        // Set item views based on the data model
+        JSONObject jo = item.content;
+        String url = null;
         try {
-            MovieData item = items.get(String.valueOf(position));
-            JSONObject jo = item.content;
-            String url = "http://image.tmdb.org/t/p/w185" + jo.getString("poster_path");
-            Picasso.with(context).load(url).into(img);
+            url = "http://image.tmdb.org/t/p/w185" + jo.getString("poster_path");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        rowView.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                //Toast.makeText(context, "You Clicked "+result[position], Toast.LENGTH_LONG).show();
-            }
-        });
-
-        return rowView;
+        Picasso.with(context).load(url).into(holder.ivImg);
     }
 
+    // Return the total count of items
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
+
+    /*
+     * Inserting a new item at the head of the list. This uses a specialized
+     * RecyclerView method, notifyItemInserted(), to trigger any enabled item
+     * animations in addition to updating the view.
+     */
+    public void add(int position, MovieData item) {
+
+        items.add(position, item);
+        notifyItemInserted(position);
+    }
+
+    public MovieData get(int position) {
+        return items.get(position);
+    }
+
+    public void clear() {
+        items.clear();
+    }
+
+
+    // Provide a direct reference to each of the views within a data item
+    // Used to cache the views within the item layout for fast access
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        // Your holder should contain a member variable
+        // for any view that will be set as you render a row
+        public ImageView ivImg;
+        private Context context;
+        // We also create a constructor that accepts the entire item row
+        // and does the view lookups to find each subview
+        public ViewHolder(Context context, View itemView) {
+            super(itemView);
+            this.ivImg = (ImageView) itemView.findViewById(R.id.imageView1);
+            this.context = context;
+            itemView.setOnClickListener(this);
+        }
+
+        // Handles the row being being clicked
+        @Override
+        public void onClick(View view) {
+            int position = getLayoutPosition(); // gets item position
+            MovieData item = items.get(position);
+            // We can access the data within the views
+            //Toast.makeText(context, "click ", Toast.LENGTH_SHORT).show();
+            Intent detailIntent = new Intent(context, MovieDetailActivity.class);
+            detailIntent.putExtra("movie_id", position);
+            try {
+                detailIntent.putExtra("original_title", item.content.getString("original_title"));
+                detailIntent.putExtra("release_date", item.content.getString("release_date"));
+                detailIntent.putExtra("overview", item.content.getString("overview"));
+                detailIntent.putExtra("vote_average", item.content.getString("vote_average"));
+                detailIntent.putExtra("poster_path", item.content.getString("poster_path"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            context.startActivity(detailIntent);
+
+
+        }
+    }
 }

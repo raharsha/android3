@@ -5,8 +5,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.haswath.popularmovies.dummy.DummyContent;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -152,9 +150,7 @@ public class FetchMoviesTask extends AsyncTask<Void, Void, JSONObject[]> {
                 Log.i(LOG_TAG, "result " + jsonObject);
                 String id = String.valueOf(i);
                 MovieData item = new MovieData(id, jsonObject);
-                adapter.add(item);
-                DummyContent.ITEM_MAP.put(id, item);
-                DummyContent.ITEMS.add(item);
+                adapter.add(i,item);
                 i++;
             }
             // New data is back from the server.  Hooray!

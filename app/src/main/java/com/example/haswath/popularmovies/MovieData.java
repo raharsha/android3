@@ -4,7 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * A dummy item representing a piece of content.
+ * A representing a piece of content.
  */
 public class MovieData {
     public String id;
@@ -15,13 +15,4 @@ public class MovieData {
         this.content = content;
     }
 
-    @Override
-    public String toString() {
-        try {
-            return content.getString("original_title");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
 }
