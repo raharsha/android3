@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,18 +16,19 @@ import android.view.MotionEvent;
 import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class PopularMovies extends Activity  {
 
     private CustomAdapter adapter;
     private SettingsChangeListener listener;
+    private String sortBy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popular_movies);
-        // Lookup the recyclerview in activity layout
         final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvUsers);
         recyclerView.setHasFixedSize(true);
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
@@ -34,19 +36,30 @@ public class PopularMovies extends Activity  {
                 new GridLayoutManager(getApplicationContext(), 2, LinearLayoutManager.VERTICAL, false);
         // Attach the layout manager to the recycler view
         recyclerView.setLayoutManager(gridLayoutManager);
-        // Create adapter passing in the sample user data
-        this.adapter = new CustomAdapter(getApplicationContext(), new ArrayList<MovieData>());
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String sortBy = prefs.getString("sort_by", "popularity.desc");
-        FetchMoviesTask weatherTask = new FetchMoviesTask(getApplicationContext(), sortBy, adapter);
-        weatherTask.execute();
-        // Attach the adapter to the recyclerview to populate items
+        sortBy = prefs.getString("sort_by", "popularity.desc");
+        if(savedInstanceState == null || !savedInstanceState.containsKey("key")) {
+            // Lookup the recyclerview in activity layout
+            // Create adapter passing in the sample user data
+            this.adapter = new CustomAdapter(getApplicationContext(), new ArrayList<Movie>());
+            FetchMoviesTask weatherTask = new FetchMoviesTask(getApplicationContext(), sortBy, adapter);
+            weatherTask.execute();
+            // Attach the adapter to the recyclerview to populate items
+            // Set layout manager to position the items
+            this.listener = new SettingsChangeListener(getApplicationContext(), adapter);
+            prefs.registerOnSharedPreferenceChangeListener(listener);
+        } else {
+            ArrayList<Movie> list = savedInstanceState.getParcelableArrayList("key");
+            this.adapter = new CustomAdapter(getApplicationContext(), list);
+        }
         recyclerView.setAdapter(adapter);
-        // Set layout manager to position the items
         recyclerView.setLayoutManager(gridLayoutManager);
-        this.listener = new SettingsChangeListener(getApplicationContext(), adapter);
-        prefs.registerOnSharedPreferenceChangeListener(listener);
+    }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("key", adapter.getItems());
+        super.onSaveInstanceState(outState);
     }
 
 
@@ -82,6 +95,15 @@ public class PopularMovies extends Activity  {
         super.onResume();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                 .registerOnSharedPreferenceChangeListener(listener);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String sortBy = prefs.getString("sort_by", "popularity.desc");
+        if (!sortBy.equals(this.sortBy)) {
+            adapter.clear();
+            final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvUsers);
+            recyclerView.removeAllViews();
+            FetchMoviesTask weatherTask = new FetchMoviesTask(getApplicationContext(), sortBy, adapter);
+            weatherTask.execute();
+        }
     }
 
     @Override

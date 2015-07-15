@@ -17,16 +17,21 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
     protected Context context;
-    private static List<MovieData> items;
-    public CustomAdapter(Context mainActivity, List<MovieData> arr) {
+    private static ArrayList<Movie> items;
+    public CustomAdapter(Context mainActivity, ArrayList<Movie> arr) {
         context=mainActivity;
         this.items = arr;
 
+    }
+
+    public ArrayList<Movie> getItems() {
+        return items;
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -43,15 +48,10 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         // Get the data model based on position
-        MovieData item = items.get(position);
+        Movie item = items.get(position);
         // Set item views based on the data model
-        JSONObject jo = item.content;
         String url = null;
-        try {
-            url = "http://image.tmdb.org/t/p/w185" + jo.getString("poster_path");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        url = "http://image.tmdb.org/t/p/w185" + item.poster_path;
         Picasso.with(context).load(url).into(holder.ivImg);
     }
 
@@ -66,13 +66,13 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
      * RecyclerView method, notifyItemInserted(), to trigger any enabled item
      * animations in addition to updating the view.
      */
-    public void add(int position, MovieData item) {
+    public void add(int position, Movie item) {
 
         items.add(position, item);
         notifyItemInserted(position);
     }
 
-    public MovieData get(int position) {
+    public Movie get(int position) {
         return items.get(position);
     }
 
@@ -101,20 +101,16 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         @Override
         public void onClick(View view) {
             int position = getLayoutPosition(); // gets item position
-            MovieData item = items.get(position);
+            Movie item = items.get(position);
             // We can access the data within the views
             //Toast.makeText(context, "click ", Toast.LENGTH_SHORT).show();
             Intent detailIntent = new Intent(context, MovieDetailActivity.class);
             detailIntent.putExtra("movie_id", position);
-            try {
-                detailIntent.putExtra("original_title", item.content.getString("original_title"));
-                detailIntent.putExtra("release_date", item.content.getString("release_date"));
-                detailIntent.putExtra("overview", item.content.getString("overview"));
-                detailIntent.putExtra("vote_average", item.content.getString("vote_average"));
-                detailIntent.putExtra("poster_path", item.content.getString("poster_path"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+                detailIntent.putExtra("original_title", item.original_title);
+                detailIntent.putExtra("release_date", item.release_date);
+                detailIntent.putExtra("overview", item.overview);
+                detailIntent.putExtra("vote_average", item.vote_average);
+                detailIntent.putExtra("poster_path", item.poster_path);
             context.startActivity(detailIntent);
 
 
