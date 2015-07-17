@@ -21,15 +21,10 @@ public class SettingsChangeListener implements SharedPreferences.OnSharedPrefere
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("sort_by")) {
-            if (sharedPreferences.getString(key, "popularity.desc").equals("vote_average.desc")) {
-                this.adapter.clear();
-                FetchMoviesTask weatherTask = new FetchMoviesTask(context, "vote_average.desc", this.adapter);
-                weatherTask.execute();
-            } else {
-                this.adapter.clear();
-                FetchMoviesTask weatherTask = new FetchMoviesTask(context, "popularity.desc", this.adapter);
-                weatherTask.execute();
-            }
+            String sortBy = sharedPreferences.getString(key, "popularity.desc");
+            this.adapter.clear();
+            FetchMoviesTask weatherTask = new FetchMoviesTask(context, sortBy, this.adapter);
+            weatherTask.execute();
         }
 
     }

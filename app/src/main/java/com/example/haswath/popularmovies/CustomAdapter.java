@@ -24,8 +24,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     protected Context context;
     private static ArrayList<Movie> items;
+
     public CustomAdapter(Context mainActivity, ArrayList<Movie> arr) {
-        context=mainActivity;
+        context = mainActivity;
         this.items = arr;
 
     }
@@ -88,6 +89,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         // for any view that will be set as you render a row
         public ImageView ivImg;
         private Context context;
+
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
         public ViewHolder(Context context, View itemView) {
@@ -106,11 +108,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             //Toast.makeText(context, "click ", Toast.LENGTH_SHORT).show();
             Intent detailIntent = new Intent(context, MovieDetailActivity.class);
             detailIntent.putExtra("movie_id", position);
-                detailIntent.putExtra("original_title", item.original_title);
-                detailIntent.putExtra("release_date", item.release_date);
-                detailIntent.putExtra("overview", item.overview);
-                detailIntent.putExtra("vote_average", item.vote_average);
-                detailIntent.putExtra("poster_path", item.poster_path);
+            detailIntent.putExtra("original_title", item.original_title);
+            detailIntent.putExtra("release_date", item.release_date);
+            detailIntent.putExtra("overview", item.overview);
+            detailIntent.putExtra("vote_average", item.vote_average);
+            detailIntent.putExtra("poster_path", item.poster_path);
             context.startActivity(detailIntent);
 
 

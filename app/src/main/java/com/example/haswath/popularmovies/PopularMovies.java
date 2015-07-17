@@ -1,22 +1,21 @@
 package com.example.haswath.popularmovies;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class PopularMovies extends Activity  {
@@ -34,6 +33,9 @@ public class PopularMovies extends Activity  {
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
         final GridLayoutManager gridLayoutManager =
                 new GridLayoutManager(getApplicationContext(), 2, LinearLayoutManager.VERTICAL, false);
+        if(getApplicationContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            gridLayoutManager.setSpanCount(4);
+        }
         // Attach the layout manager to the recycler view
         recyclerView.setLayoutManager(gridLayoutManager);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -42,8 +44,10 @@ public class PopularMovies extends Activity  {
             // Lookup the recyclerview in activity layout
             // Create adapter passing in the sample user data
             this.adapter = new CustomAdapter(getApplicationContext(), new ArrayList<Movie>());
-            FetchMoviesTask weatherTask = new FetchMoviesTask(getApplicationContext(), sortBy, adapter);
-            weatherTask.execute();
+            if (isNetworkAvailable()) {
+                FetchMoviesTask weatherTask = new FetchMoviesTask(getApplicationContext(), sortBy, adapter);
+                weatherTask.execute();
+            }
             // Attach the adapter to the recyclerview to populate items
             // Set layout manager to position the items
             this.listener = new SettingsChangeListener(getApplicationContext(), adapter);
@@ -101,9 +105,19 @@ public class PopularMovies extends Activity  {
             adapter.clear();
             final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvUsers);
             recyclerView.removeAllViews();
-            FetchMoviesTask weatherTask = new FetchMoviesTask(getApplicationContext(), sortBy, adapter);
-            weatherTask.execute();
+            if (isNetworkAvailable()) {
+                FetchMoviesTask weatherTask = new FetchMoviesTask(getApplicationContext(), sortBy, adapter);
+                weatherTask.execute();
+            }
         }
+    }
+
+    //Based on a stackoverflow snippet
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     @Override

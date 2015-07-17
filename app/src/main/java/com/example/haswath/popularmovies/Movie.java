@@ -3,6 +3,9 @@ package com.example.haswath.popularmovies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Created by haswath on 7/14/15.
  */
@@ -10,7 +13,7 @@ public class Movie implements Parcelable {
 
     String original_title;
     String poster_path;
-    String release_date;
+    Date release_date;
     String overview;
     String vote_average;
 
@@ -20,7 +23,7 @@ public class Movie implements Parcelable {
     public Movie(com.uwetrottmann.tmdb.entities.Movie movie) {
         this.original_title = movie.original_title;
         this.poster_path = movie.poster_path;
-        this.release_date = movie.release_date.toString();
+        this.release_date = movie.release_date;
         this.overview = movie.overview;
         this.vote_average = movie.vote_average.toString();
 
@@ -30,7 +33,9 @@ public class Movie implements Parcelable {
     private Movie(Parcel in) {
         original_title=in.readString();
         poster_path=in.readString();
-        release_date=in.readString();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(in.readLong());
+        release_date= calendar.getTime();
         overview=in.readString();
         vote_average=in.readString();
     }
@@ -46,7 +51,7 @@ public class Movie implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
             dest.writeString(original_title);
             dest.writeString(poster_path);
-            dest.writeString(release_date);
+            dest.writeLong(release_date.getTime());
             dest.writeString(overview);
             dest.writeString(vote_average);
     }
